@@ -1,0 +1,1035 @@
+<title>Prototipo Campings CHL</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+
+<style>
+:root{
+  --paper:#F4F6F2; --surface:#FFFFFF; --sunk:#EBEFE9; --raised:#FFFFFF;
+  --ink:#17211C; --ink-2:#55625A; --ink-3:#7E8C84;
+  --line:#DCE3DB; --line-2:#C6D0C5;
+  --pine:#2C5D46; --pine-ink:#234A38; --pine-soft:#E2EDE6;
+  --ember:#9E4620; --ember-soft:#F7E9E2;
+  --gold:#8A6B14; --water:#BFD4D8;
+  --shadow:0 1px 2px rgba(23,33,28,.05), 0 10px 26px -18px rgba(23,33,28,.30);
+  --shadow-lg:0 2px 6px rgba(23,33,28,.06), 0 22px 44px -26px rgba(23,33,28,.4);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0F1513; --surface:#171F1B; --sunk:#131A17; --raised:#1D2622;
+    --ink:#E7EDE8; --ink-2:#9DAAA2; --ink-3:#7C8981;
+    --line:#28322C; --line-2:#36423A;
+    --pine:#77C296; --pine-ink:#9BD4B2; --pine-soft:#1B2A22;
+    --ember:#E08A64; --ember-soft:#2B1D16;
+    --gold:#D2A94F; --water:#25383C;
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -18px rgba(0,0,0,.7);
+    --shadow-lg:0 2px 6px rgba(0,0,0,.4), 0 22px 44px -26px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0F1513; --surface:#171F1B; --sunk:#131A17; --raised:#1D2622;
+  --ink:#E7EDE8; --ink-2:#9DAAA2; --ink-3:#7C8981;
+  --line:#28322C; --line-2:#36423A;
+  --pine:#77C296; --pine-ink:#9BD4B2; --pine-soft:#1B2A22;
+  --ember:#E08A64; --ember-soft:#2B1D16;
+  --gold:#D2A94F; --water:#25383C;
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 26px -18px rgba(0,0,0,.7);
+  --shadow-lg:0 2px 6px rgba(0,0,0,.4), 0 22px 44px -26px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{background:var(--paper);color:var(--ink);
+  font-family:"Bricolage Grotesque","Helvetica Neue",Arial,sans-serif;
+  font-size:15px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.serif{font-family:"Source Serif 4",Georgia,serif}
+.mono,.n{font-family:"IBM Plex Mono",ui-monospace,Menlo,monospace;font-variant-numeric:tabular-nums}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-.015em;line-height:1.15;text-wrap:balance}
+p{margin:0}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--pine);outline-offset:2px;border-radius:4px}
+.lbl{font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:500;
+  letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+
+/* ---------- shell ---------- */
+.demobar{background:var(--ember-soft);color:var(--ember);
+  font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;
+  padding:7px 16px;text-align:center;border-bottom:1px solid var(--line)}
+.topbar{position:sticky;top:0;z-index:30;background:var(--surface);
+  border-bottom:1px solid var(--line);display:flex;align-items:center;gap:14px;
+  padding:11px 16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:9px;font-weight:800;font-size:17px;letter-spacing:-.02em}
+.brand .tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;font-weight:500;
+  letter-spacing:.08em;color:var(--ink-3);border:1px solid var(--line-2);
+  padding:2px 6px;border-radius:3px;text-transform:uppercase}
+.seg{margin-left:auto;display:flex;background:var(--sunk);border-radius:999px;padding:3px;gap:2px}
+.seg button{border:0;background:transparent;color:var(--ink-2);font-size:13px;font-weight:600;
+  padding:6px 15px;border-radius:999px;transition:background .13s,color .13s}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--pine-ink);box-shadow:var(--shadow)}
+
+main{max-width:1120px;margin:0 auto;padding:0 16px 80px}
+.view{display:none}
+.view.on{display:block}
+
+/* ---------- search ---------- */
+.searchwrap{padding:26px 0 6px}
+.kicker{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.h-hero{font-size:clamp(25px,4.4vw,36px);font-weight:800;margin-bottom:6px}
+.sub{color:var(--ink-2);font-size:15px;max-width:56ch;margin-bottom:18px}
+.searchbar{display:grid;grid-template-columns:1.4fr 1fr 1fr auto;gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;box-shadow:var(--shadow)}
+.searchbar .f{background:var(--surface);padding:9px 14px;min-width:0}
+.searchbar .f .lbl{display:block;margin-bottom:2px}
+.searchbar select,.searchbar input{border:0;background:transparent;color:var(--ink);
+  font-family:inherit;font-size:14.5px;font-weight:600;width:100%;padding:0;outline:none}
+.searchbar .go{background:var(--pine);color:var(--surface);border:0;padding:0 22px;
+  font-weight:700;font-size:14px;letter-spacing:.01em}
+@media(max-width:720px){.searchbar{grid-template-columns:1fr 1fr}.searchbar .go{grid-column:1/-1;padding:13px}}
+
+.chips{display:flex;gap:7px;flex-wrap:wrap;margin:16px 0 4px;align-items:center}
+.chip{border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);
+  border-radius:999px;padding:6px 13px;font-size:12.5px;font-weight:600;
+  transition:background .12s,border-color .12s,color .12s;white-space:nowrap}
+.chip:hover{border-color:var(--pine)}
+.chip[aria-pressed="true"]{background:var(--pine);border-color:var(--pine);color:var(--surface)}
+.chipclear{border:0;background:transparent;color:var(--ink-3);font-size:12px;
+  text-decoration:underline;text-underline-offset:3px;padding:6px 4px}
+
+.resbar{display:flex;align-items:baseline;gap:12px;margin:20px 0 12px;flex-wrap:wrap}
+.resbar .count{font-weight:700;font-size:16px}
+.mapbtn{margin-left:auto;border:1px solid var(--line-2);background:var(--surface);
+  color:var(--ink-2);border-radius:6px;padding:6px 12px;font-size:12.5px;font-weight:600}
+
+.split{display:grid;grid-template-columns:1fr 400px;gap:20px;align-items:start}
+@media(max-width:900px){.split{grid-template-columns:1fr}.mapcol{order:-1}}
+.mapcol{position:sticky;top:74px}
+@media(max-width:900px){.mapcol{position:static}.mapcol.hide{display:none}}
+
+.cards{display:flex;flex-direction:column;gap:12px}
+.card{display:grid;grid-template-columns:150px 1fr;gap:0;background:var(--surface);
+  border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  box-shadow:var(--shadow);text-align:left;padding:0;width:100%;border-width:1px}
+.card:hover{box-shadow:var(--shadow-lg)}
+.card.sel{border-color:var(--pine);box-shadow:0 0 0 1px var(--pine),var(--shadow-lg)}
+.card .ph{width:100%;height:100%;min-height:130px;display:block;overflow:hidden}
+.card .ph svg{display:block;width:100%;height:100%}
+.card .body{padding:13px 15px 14px;min-width:0}
+.card .top{display:flex;gap:10px;align-items:baseline}
+.card h3{font-size:16.5px;flex:1;min-width:0}
+.card .com{font-size:12.5px;color:var(--ink-3);margin-top:2px}
+.card .am{display:flex;gap:5px;flex-wrap:wrap;margin-top:9px}
+.am span{font-size:11px;color:var(--ink-2);background:var(--sunk);border-radius:4px;padding:3px 7px}
+.card .price{display:flex;align-items:baseline;gap:6px;margin-top:11px}
+.card .price b{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:16px;font-weight:600}
+.card .price span{font-size:12px;color:var(--ink-3)}
+.rate{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--gold);
+  font-weight:500;white-space:nowrap}
+@media(max-width:560px){.card{grid-template-columns:1fr}.card .ph{height:132px;min-height:0}}
+
+.mapbox{background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  overflow:hidden;box-shadow:var(--shadow)}
+.mapbox svg{display:block;width:100%;height:auto}
+.mapfoot{padding:8px 12px;border-top:1px solid var(--line);
+  font-family:"IBM Plex Mono",monospace;font-size:10.5px;color:var(--ink-3)}
+.pin{cursor:pointer}
+.pin circle{transition:r .12s}
+
+.empty{background:var(--surface);border:1px dashed var(--line-2);border-radius:8px;
+  padding:34px 22px;text-align:center;color:var(--ink-2)}
+
+/* ---------- ficha ---------- */
+.back{border:0;background:transparent;color:var(--ink-2);font-size:13.5px;font-weight:600;
+  padding:16px 0 10px;display:inline-flex;gap:7px;align-items:center}
+.gal{display:grid;grid-template-columns:2fr 1fr 1fr;gap:5px;border-radius:9px;overflow:hidden;
+  border:1px solid var(--line)}
+.gal svg{display:block;width:100%;height:100%}
+.gal .g1{grid-row:span 2;min-height:240px}
+.gal .g2,.gal .g3{min-height:117px}
+@media(max-width:640px){.gal{grid-template-columns:1fr 1fr}.gal .g1{grid-row:span 1;grid-column:1/-1;min-height:180px}}
+.fhead{display:flex;gap:18px;align-items:flex-start;margin:20px 0 4px;flex-wrap:wrap}
+.fhead h2{font-size:clamp(23px,3.6vw,31px)}
+.fmeta{color:var(--ink-2);font-size:14px;margin-top:5px}
+.fgrid{display:grid;grid-template-columns:1fr 340px;gap:32px;align-items:start;margin-top:22px}
+@media(max-width:860px){.fgrid{grid-template-columns:1fr;gap:22px}}
+.fsec{padding:20px 0;border-top:1px solid var(--line)}
+.fsec:first-child{border-top:0;padding-top:4px}
+.fsec h4{font-size:15px;margin-bottom:12px}
+.amgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:9px 16px}
+.amrow{display:flex;gap:9px;align-items:center;font-size:14px;color:var(--ink-2)}
+.amrow .dot{width:6px;height:6px;border-radius:50%;background:var(--pine);flex:none}
+.amrow.no{color:var(--ink-3);text-decoration:line-through;text-decoration-color:var(--line-2)}
+.amrow.no .dot{background:var(--line-2)}
+.tsc{overflow-x:auto;border:1px solid var(--line);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:13.5px;min-width:330px}
+th,td{padding:9px 13px;text-align:left;border-bottom:1px solid var(--line)}
+thead th{background:var(--sunk);font-family:"IBM Plex Mono",monospace;font-size:10px;
+  letter-spacing:.11em;text-transform:uppercase;color:var(--ink-3);font-weight:600}
+tbody tr:last-child td{border-bottom:0}
+td.n,th.r{text-align:right}
+td.n{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;white-space:nowrap}
+
+.bookbox{background:var(--surface);border:1px solid var(--line);border-radius:9px;
+  box-shadow:var(--shadow-lg);padding:18px;position:sticky;top:76px}
+@media(max-width:860px){.bookbox{position:static}}
+.bb-price{display:flex;align-items:baseline;gap:7px;margin-bottom:14px}
+.bb-price b{font-family:"IBM Plex Mono",monospace;font-size:22px;font-weight:600}
+.bb-price span{color:var(--ink-3);font-size:13px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:12px}
+.fields .f{background:var(--surface);padding:8px 11px}
+.fields .f.wide{grid-column:1/-1}
+.fields select,.fields input{border:0;background:transparent;color:var(--ink);width:100%;
+  font-family:inherit;font-size:14px;font-weight:600;outline:none;padding:0}
+.lines{display:flex;flex-direction:column;gap:7px;font-size:13.5px;margin:14px 0}
+.line{display:flex;justify-content:space-between;gap:12px;color:var(--ink-2)}
+.line .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;color:var(--ink)}
+.line.tot{border-top:1px solid var(--line);padding-top:9px;font-weight:700;color:var(--ink);font-size:15px}
+.line.tot .v{font-size:15px;font-weight:600}
+.cta{width:100%;border:0;background:var(--pine);color:var(--surface);border-radius:7px;
+  padding:13px;font-weight:700;font-size:15px;margin-top:4px}
+.cta.ghost{background:transparent;color:var(--pine-ink);border:1px solid var(--line-2)}
+.fine{font-size:11.5px;color:var(--ink-3);margin-top:10px;line-height:1.45}
+.retract{border-left:2px solid var(--ember);background:var(--ember-soft);color:var(--ember);
+  padding:8px 11px;border-radius:0 4px 4px 0;font-size:11.5px;margin-top:10px;line-height:1.45}
+
+/* ---------- checkout ---------- */
+.pay{max-width:660px;margin:0 auto}
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0 20px}
+@media(max-width:620px){.modes{grid-template-columns:1fr}}
+.mode{border:1px solid var(--line-2);background:var(--surface);border-radius:7px;
+  padding:11px 13px;text-align:left;transition:border-color .12s,background .12s}
+.mode:hover{border-color:var(--pine)}
+.mode[aria-pressed="true"]{border-color:var(--pine);background:var(--pine-soft)}
+.mode .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:3px}
+.mode .t{font-weight:700;font-size:13.5px;display:block;line-height:1.3}
+.mode[aria-pressed="true"] .t{color:var(--pine-ink)}
+.paybox{background:var(--surface);border:1px solid var(--line);border-radius:9px;
+  box-shadow:var(--shadow);padding:20px}
+.paynote{background:var(--sunk);border-radius:6px;padding:12px 14px;font-size:13px;
+  color:var(--ink-2);margin-top:16px;line-height:1.5}
+.paynote.warn{background:var(--ember-soft);color:var(--ember)}
+.paynote b{color:inherit}
+.split2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0 4px}
+@media(max-width:560px){.split2{grid-template-columns:1fr}}
+.tile{border:1px solid var(--line);border-radius:7px;padding:13px 15px;background:var(--sunk)}
+.tile.hero{background:var(--pine-soft);border-color:var(--pine)}
+.tile .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink-3);display:block}
+.tile .v{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:21px;font-weight:600;display:block;margin-top:5px}
+.tile.hero .v{color:var(--pine-ink)}
+
+.done{text-align:center;padding:40px 20px;max-width:520px;margin:0 auto}
+.done .mark{width:52px;height:52px;border-radius:50%;background:var(--pine);color:var(--surface);
+  display:grid;place-items:center;font-size:26px;margin:0 auto 16px}
+
+/* ---------- host ---------- */
+.htiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0 22px}
+@media(max-width:760px){.htiles{grid-template-columns:1fr 1fr}}
+.hpanel{background:var(--surface);border:1px solid var(--line);border-radius:9px;
+  box-shadow:var(--shadow);margin-bottom:16px;overflow:hidden}
+.hp-head{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.hp-head h3{font-size:15.5px}
+.addbtn{margin-left:auto;border:0;background:var(--pine);color:var(--surface);
+  border-radius:6px;padding:8px 14px;font-weight:700;font-size:13px}
+.calscroll{overflow-x:auto}
+.cal{min-width:660px;padding:0 0 4px}
+.calrow{display:grid;grid-template-columns:130px repeat(14,1fr);align-items:center;
+  border-bottom:1px solid var(--line)}
+.calrow:last-child{border-bottom:0}
+.calrow.head{background:var(--sunk)}
+.calrow .rl{padding:9px 12px;font-size:12.5px;font-weight:600;border-right:1px solid var(--line);
+  position:sticky;left:0;background:var(--surface);z-index:2}
+.calrow.head .rl{background:var(--sunk)}
+.calrow .d{padding:6px 2px;text-align:center;font-family:"IBM Plex Mono",monospace;
+  font-size:10.5px;color:var(--ink-3);border-right:1px solid var(--line)}
+.calrow .d em{display:block;font-style:normal;font-size:8.5px;letter-spacing:.06em;
+  color:var(--ink-3);opacity:.7;margin-bottom:1px}
+.calrow.head .d.we{background:var(--line);color:var(--ink-2)}
+.calrow .cell{height:34px;border-right:1px solid var(--line);position:relative}
+.calrow .cell.we{background:var(--sunk)}
+.bar{position:absolute;inset:4px 2px;border-radius:4px;display:flex;align-items:center;
+  padding:0 6px;font-size:10.5px;font-weight:600;color:var(--surface);overflow:hidden;
+  white-space:nowrap;z-index:1}
+.bar.direct{background:var(--ink-2)}
+.bar.mkt{background:var(--pine)}
+.bar.fresh{animation:pop .5s ease}
+@keyframes pop{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.bar.fresh{animation:none}}
+.callegend{display:flex;gap:16px;padding:10px 16px;border-top:1px solid var(--line);
+  font-size:12px;color:var(--ink-2);flex-wrap:wrap}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.blist{display:flex;flex-direction:column}
+.brow{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;
+  padding:11px 16px;border-bottom:1px solid var(--line)}
+.brow:last-child{border-bottom:0}
+.brow .who{font-weight:600;font-size:14px}
+.brow .when{font-size:12px;color:var(--ink-3);margin-top:1px}
+.badge{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.07em;
+  text-transform:uppercase;padding:3px 8px;border-radius:999px;font-weight:600;white-space:nowrap}
+.badge.direct{background:var(--sunk);color:var(--ink-2)}
+.badge.mkt{background:var(--pine-soft);color:var(--pine-ink)}
+.brow .amt{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;
+  font-size:13.5px;text-align:right;white-space:nowrap}
+.brow .amt small{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.02em}
+
+dialog{border:0;border-radius:10px;padding:0;background:var(--surface);color:var(--ink);
+  box-shadow:var(--shadow-lg);max-width:400px;width:calc(100% - 32px)}
+dialog::backdrop{background:rgba(15,21,19,.5)}
+.dlg-head{padding:16px 18px 4px}
+.dlg-head h3{font-size:17px}
+.dlg-head p{font-size:12.5px;color:var(--ink-3);margin-top:4px}
+.dlg-body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:10px}
+.dlg-body label{display:block}
+.dlg-body .lbl{display:block;margin-bottom:4px}
+.dlg-body input,.dlg-body select{width:100%;border:1px solid var(--line-2);background:var(--sunk);
+  color:var(--ink);border-radius:6px;padding:9px 11px;font-family:inherit;font-size:14px;font-weight:600;outline:none}
+.dlg-body input:focus,.dlg-body select:focus{border-color:var(--pine)}
+.dlg-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.dlg-foot{display:flex;gap:9px;margin-top:4px}
+.dlg-foot button{flex:1;border-radius:7px;padding:11px;font-weight:700;font-size:14px;border:0}
+.dlg-foot .ok{background:var(--pine);color:var(--surface)}
+.dlg-foot .no{background:transparent;color:var(--ink-2);border:1px solid var(--line-2)}
+
+.pitch{background:var(--pine-soft);border:1px solid var(--pine);border-radius:9px;
+  padding:16px 18px;margin-top:18px}
+.pitch p{font-size:14.5px;color:var(--pine-ink);line-height:1.55}
+.pitch p+p{margin-top:.6em}
+
+.footnote{margin-top:34px;padding-top:18px;border-top:1px solid var(--line);
+  font-size:12.5px;color:var(--ink-3);line-height:1.55;max-width:70ch}
+</style>
+
+<div class="demobar">PROTOTIPO · datos y campings de ejemplo, no son establecimientos reales</div>
+
+<div class="topbar">
+  <div class="brand">⛺ <span id="brandName">Reservas outdoor</span> <span class="tag">nombre · decisión 7</span></div>
+  <div class="seg" role="group" aria-label="Lado del producto">
+    <button id="sideTraveler" aria-pressed="true">Viajero</button>
+    <button id="sideHost" aria-pressed="false">Anfitrión</button>
+  </div>
+</div>
+
+<main>
+
+<!-- ============ BUSCADOR ============ -->
+<div class="view on" id="v-buscar">
+  <div class="searchwrap">
+    <div class="kicker"><span class="lbl">Cajón del Maipo · Litoral Central</span></div>
+    <h1 class="h-hero">Camping, domos y sitios de motorhome con cupo real</h1>
+    <p class="sub">Disponibilidad de verdad, precio total a la vista y la reserva confirmada en el momento. Sin escribirle a nadie para preguntar si hay lugar.</p>
+
+    <div class="searchbar">
+      <div class="f">
+        <span class="lbl">Dónde</span>
+        <select id="fZona">
+          <option value="">Todos los destinos</option>
+          <option value="litoral">Litoral Central</option>
+          <option value="maipo">Cajón del Maipo</option>
+        </select>
+      </div>
+      <div class="f">
+        <span class="lbl">Noches</span>
+        <select id="fNoches"><option>2</option><option selected>3</option><option>4</option><option>5</option><option>7</option></select>
+      </div>
+      <div class="f">
+        <span class="lbl">Personas</span>
+        <select id="fPax"><option>2</option><option selected>4</option><option>5</option><option>6</option><option>8</option></select>
+      </div>
+      <button class="go" id="btnBuscar">Buscar</button>
+    </div>
+
+    <div class="chips" id="chips"></div>
+  </div>
+
+  <div class="resbar">
+    <span class="count" id="resCount"></span>
+    <span class="lbl" id="resTemp"></span>
+    <button class="mapbtn" id="btnMap">Ocultar mapa</button>
+  </div>
+
+  <div class="split">
+    <div class="cards" id="cards"></div>
+    <div class="mapcol" id="mapcol">
+      <div class="mapbox">
+        <div id="mapSvg"></div>
+        <div class="mapfoot">Mapa esquemático · el prototipo no carga tiles</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FICHA ============ -->
+<div class="view" id="v-ficha">
+  <button class="back" id="btnBack">← Volver a los resultados</button>
+  <div class="gal" id="gal"></div>
+  <div class="fhead">
+    <div style="flex:1;min-width:240px">
+      <h2 id="fName"></h2>
+      <p class="fmeta" id="fMeta"></p>
+    </div>
+    <span class="rate" id="fRate"></span>
+  </div>
+  <div class="fgrid">
+    <div>
+      <div class="fsec">
+        <p class="serif" id="fDesc" style="font-size:16.5px;line-height:1.62;color:var(--ink-2)"></p>
+      </div>
+      <div class="fsec">
+        <h4>Servicios</h4>
+        <div class="amgrid" id="fAms"></div>
+      </div>
+      <div class="fsec">
+        <h4>Tarifas por temporada</h4>
+        <div class="tsc">
+          <table>
+            <thead><tr><th>Temporada</th><th>Fechas</th><th class="r">Por sitio / noche</th></tr></thead>
+            <tbody id="fTar"></tbody>
+          </table>
+        </div>
+        <p class="fine" id="fExtra"></p>
+      </div>
+      <div class="fsec">
+        <h4>El plano del camping</h4>
+        <p style="font-size:14px;color:var(--ink-2)">Elegir el sitio 14 junto al río, y no solo "un sitio de carpa". Es lo que Booking no sabe modelar y lo que nos diferencia — pero es <strong>V1, no el MVP</strong>: exige inventario sitio por sitio y que el anfitrión lo mantenga. El esquema de datos ya lo soporta.</p>
+      </div>
+    </div>
+    <div>
+      <div class="bookbox">
+        <div class="bb-price"><b id="bbPrice"></b><span id="bbUnit"></span></div>
+        <div class="fields">
+          <div class="f"><span class="lbl">Llegada</span><input id="bbIn" type="text" value="8 nov" readonly></div>
+          <div class="f"><span class="lbl">Salida</span><input id="bbOut" type="text" value="11 nov" readonly></div>
+          <div class="f"><span class="lbl">Tipo</span><select id="bbTipo"></select></div>
+          <div class="f"><span class="lbl">Personas</span><select id="bbPax"><option>2</option><option selected>4</option><option>5</option><option>6</option></select></div>
+        </div>
+        <div class="lines" id="bbLines"></div>
+        <button class="cta" id="btnReservar">Solicitar reserva</button>
+        <p class="fine">El anfitrión tiene <strong>2 horas</strong> para confirmar. No se cobra nada hasta que confirme.</p>
+        <div class="retract" id="bbRetract"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAGO ============ -->
+<div class="view" id="v-pago">
+  <button class="back" id="btnBack2">← Volver a la ficha</button>
+  <div class="pay">
+    <h2 style="font-size:26px">Confirmar y pagar</h2>
+    <p class="sub" style="margin:8px 0 0">La misma reserva, cobrada de las tres formas que están sobre la mesa. <strong>Esta pantalla es la decisión 1.</strong></p>
+
+    <div class="modes" role="group" aria-label="Mecánica de cobro">
+      <button class="mode" data-mode="A" aria-pressed="true"><span class="k">Opción A · recomendada</span><span class="t">Cargo de reserva 12%, imputable</span></button>
+      <button class="mode" data-mode="B" aria-pressed="false"><span class="k">Opción B</span><span class="t">Recaudamos el total y liquidamos</span></button>
+      <button class="mode" data-mode="V" aria-pressed="false"><span class="k">Opción V</span><span class="t">Fee de 8% encima del precio</span></button>
+    </div>
+
+    <div class="paybox">
+      <div class="lbl" style="margin-bottom:10px" id="payWho"></div>
+      <div class="lines" id="payLines"></div>
+      <div class="split2">
+        <div class="tile hero"><span class="k" id="payK1"></span><span class="v" id="payV1"></span></div>
+        <div class="tile"><span class="k" id="payK2"></span><span class="v" id="payV2"></span></div>
+      </div>
+      <button class="cta" style="margin-top:16px" id="btnPagar"></button>
+      <div class="paynote" id="payNote"></div>
+      <div class="paynote" id="payMargin"></div>
+    </div>
+
+    <p class="footnote">Sobre esta reserva, con procesamiento de 3,5%, contracargos de 0,7% y $800 de soporte. La diferencia entre A y B es que en A <strong>solo procesamos nuestra propia comisión</strong>, así que la pasarela nos cuesta 0,4% del GMV en vez de 3,5%.</p>
+  </div>
+</div>
+
+<!-- ============ LISTO ============ -->
+<div class="view" id="v-listo">
+  <div class="done">
+    <div class="mark">✓</div>
+    <h2 style="font-size:24px">Reserva confirmada</h2>
+    <p class="sub" style="margin:10px auto 18px" id="doneTxt"></p>
+    <div class="split2" style="text-align:left">
+      <div class="tile"><span class="k">Le llegó al anfitrión por</span><span class="v" style="font-size:15px">WhatsApp</span></div>
+      <div class="tile"><span class="k">Su comisión</span><span class="v" id="doneCom"></span></div>
+    </div>
+    <button class="cta ghost" style="margin-top:20px" id="btnVerHost">Ver cómo lo vio el anfitrión →</button>
+  </div>
+</div>
+
+<!-- ============ ANFITRIÓN ============ -->
+<div class="view" id="v-host">
+  <div class="searchwrap">
+    <div class="kicker"><span class="lbl">Panel del anfitrión · Camping Los Maitenes, San Alfonso</span></div>
+    <h1 class="h-hero" style="font-size:clamp(23px,4vw,31px)">Tu calendario, en el teléfono</h1>
+    <p class="sub">Gratis, para siempre. Las reservas que tú traigas no pagan comisión — nunca.</p>
+  </div>
+
+  <div class="htiles">
+    <div class="tile"><span class="k">Reservas temporada</span><span class="v" id="hN"></span></div>
+    <div class="tile"><span class="k">Ventas</span><span class="v" id="hGmv"></span></div>
+    <div class="tile hero"><span class="k">Comisión que pagaste</span><span class="v" id="hCom"></span></div>
+    <div class="tile"><span class="k">Ocupación · nov</span><span class="v" id="hOcc"></span></div>
+  </div>
+
+  <div class="hpanel">
+    <div class="hp-head">
+      <h3>Noviembre</h3>
+      <span class="lbl">Arrastra para mover · toca para editar</span>
+      <button class="addbtn" id="btnAdd">+ Anotar reserva</button>
+    </div>
+    <div class="calscroll"><div class="cal" id="cal"></div></div>
+    <div class="callegend">
+      <span><span class="sw" style="background:var(--ink-2)"></span>Reserva tuya · comisión $0</span>
+      <span><span class="sw" style="background:var(--pine)"></span>Te la mandamos nosotros · 12%</span>
+    </div>
+  </div>
+
+  <div class="hpanel">
+    <div class="hp-head"><h3>Últimas reservas</h3></div>
+    <div class="blist" id="blist"></div>
+  </div>
+
+  <div class="pitch">
+    <p><strong>Esto es lo que se le dice al anfitrión, y es la decisión 2:</strong></p>
+    <p>«El sistema es gratis y es tuyo. Tus clientes de siempre reservan por tu link y no te cobramos nada, nunca. Y si además te mandamos gente en abril, esa persona paga online un 12% que se descuenta de lo que te paga a ti — tú no giras nada, no esperas ninguna liquidación, y llega con la reserva ya comprometida.»</p>
+  </div>
+
+  <p class="footnote">Lo que <strong>no</strong> está en esta pantalla y tampoco va en el MVP: precios dinámicos, channel manager, boleta electrónica, POS, app nativa. Lo que sí tiene que estar y es lo único que importa: que anotar una reserva que llegó por WhatsApp sea más rápido que el cuaderno.</p>
+</div>
+
+</main>
+
+<dialog id="dlg">
+  <form method="dialog" id="dlgForm">
+    <div class="dlg-head">
+      <h3>Anotar reserva</h3>
+      <p>Le escribieron por WhatsApp. Esto tiene que tomar 30 segundos.</p>
+    </div>
+    <div class="dlg-body">
+      <label><span class="lbl">Nombre</span><input id="inName" value="Camila Soto" required></label>
+      <div class="dlg-row">
+        <label><span class="lbl">Llega</span><select id="inFrom"></select></label>
+        <label><span class="lbl">Noches</span><select id="inNights"><option>1</option><option selected>2</option><option>3</option><option>4</option></select></label>
+      </div>
+      <div class="dlg-row">
+        <label><span class="lbl">Tipo de sitio</span><select id="inTipo"></select></label>
+        <label><span class="lbl">Personas</span><select id="inPax"><option>2</option><option selected>4</option><option>6</option></select></label>
+      </div>
+      <div class="dlg-foot">
+        <button type="button" class="no" id="dlgCancel">Cancelar</button>
+        <button type="submit" class="ok">Guardar</button>
+      </div>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------------- datos de ejemplo ---------------- */
+var AM = {
+  duchaCaliente:"Ducha con agua caliente", electricidad:"Electricidad en el sitio",
+  mascotas:"Mascotas", sombra:"Sombra", quincho:"Quincho o parrilla", wifi:"Wifi",
+  piscina:"Piscina", rio:"Río", playa:"Playa", motorhome:"Sitio para motorhome",
+  acceso:"Acceso vehicular al sitio", senal:"Señal de celular", lena:"Venta de leña",
+  minimarket:"Minimarket", agua:"Agua potable", banoPrivado:"Baño privado"
+};
+var FILTROS = ["mascotas","duchaCaliente","electricidad","acceso","rio","playa","motorhome","quincho","wifi"];
+
+var CAMPINGS = [
+  {id:"c1",nom:"Camping Punta Ballena",comuna:"El Quisco",zona:"litoral",x:11,y:24,base:22000,sitios:34,rate:4.6,revs:82,
+   hue:196,tipos:["Sitio de carpa","Sitio de motorhome"],
+   am:["playa","duchaCaliente","electricidad","mascotas","quincho","acceso","motorhome","senal","agua","lena"],
+   desc:"Terrazas de arena firme a doscientos metros de la playa, con eucaliptos viejos que dan sombra toda la tarde. El sector de motorhome tiene conexión y descarga."},
+  {id:"c2",nom:"Bosque de Algarrobo",comuna:"Algarrobo",zona:"litoral",x:9,y:17,base:28000,sitios:26,rate:4.8,revs:141,
+   hue:112,tipos:["Sitio de carpa","Domo"],
+   am:["playa","duchaCaliente","sombra","quincho","wifi","agua","senal","acceso","banoPrivado"],
+   desc:"Bosque cerrado sobre la quebrada, con seis domos en la parte alta y sitios de carpa abajo. Silencio real desde las once."},
+  {id:"c3",nom:"Camping Las Brisas",comuna:"Santo Domingo",zona:"litoral",x:13,y:36,base:19000,sitios:48,rate:4.2,revs:57,
+   hue:174,tipos:["Sitio de carpa","Sitio de motorhome"],
+   am:["playa","duchaCaliente","electricidad","mascotas","acceso","motorhome","agua","minimarket","lena"],
+   desc:"El más grande del sector y el más barato. Sin lujos: baños limpios, agua caliente y acceso directo a la playa larga."},
+  {id:"c4",nom:"Refugio Matanzas",comuna:"Navidad",zona:"litoral",x:14,y:50,base:65000,sitios:8,rate:4.9,revs:96,
+   hue:32,tipos:["Domo","Sitio de carpa"],
+   am:["playa","duchaCaliente","electricidad","wifi","banoPrivado","sombra","agua","senal"],
+   desc:"Cuatro domos geodésicos mirando al punto de surf, con calefacción y cama real. Se llena de octubre a marzo con dos meses de anticipación."},
+  {id:"c5",nom:"Camping El Manzano",comuna:"San José de Maipo",zona:"maipo",x:74,y:29,base:18000,sitios:30,rate:4.3,revs:64,
+   hue:96,tipos:["Sitio de carpa"],
+   am:["rio","duchaCaliente","mascotas","sombra","quincho","acceso","agua","lena","senal"],
+   desc:"A la orilla del Maipo, cuarenta minutos de Santiago. Es el clásico de fin de semana: llegas el sábado a mediodía y armas la carpa bajo los álamos."},
+  {id:"c6",nom:"Domos Río Volcán",comuna:"San José de Maipo",zona:"maipo",x:88,y:38,base:95000,sitios:6,rate:4.9,revs:113,
+   hue:216,tipos:["Domo"],
+   am:["rio","duchaCaliente","electricidad","wifi","banoPrivado","sombra","agua"],
+   desc:"Seis domos sobre una terraza natural con vista al Volcán San José. Desayuno incluido y tinaja a leña con reserva previa."},
+  {id:"c7",nom:"Camping Los Maitenes",comuna:"San Alfonso",zona:"maipo",x:80,y:33,base:24000,sitios:26,rate:4.5,revs:78,
+   hue:138,tipos:["Sitio de carpa","Sitio de motorhome","Domo"],
+   am:["rio","duchaCaliente","electricidad","mascotas","sombra","quincho","acceso","motorhome","agua","lena","piscina"],
+   desc:"Maitenes de verdad, no plantados: dan una sombra que en enero se agradece. Piscina de agua de vertiente y sendero propio al cajón."},
+  {id:"c8",nom:"Termas de la Quebrada",comuna:"San Gabriel",zona:"maipo",x:92,y:45,base:42000,sitios:14,rate:4.4,revs:39,
+   hue:14,tipos:["Sitio de carpa","Domo"],
+   am:["rio","duchaCaliente","electricidad","sombra","quincho","agua","lena","piscina","acceso"],
+   desc:"Pozones termales naturales a quince minutos caminando. Sin señal desde la entrada — para muchos ése es el punto."}
+];
+
+var TEMPS = [
+  {n:"Baja",f:"abril – agosto",m:0.65},
+  {n:"Media",f:"septiembre – noviembre",m:1},
+  {n:"Alta",f:"15 dic – 15 mar y feriados largos",m:1.75}
+];
+var PERSONA_EXTRA = 6000, PAX_INCL = 2;
+var TAKE = 0.12, FEE_V = 0.08, PROC = 0.035, CC = 0.007, SOPORTE = 800;
+
+/* ---------------- utilidades ---------------- */
+function clp(n){ return "$" + Math.round(n).toLocaleString("es-CL"); }
+function $(id){ return document.getElementById(id); }
+
+var state = { zona:"", noches:3, pax:4, filtros:[], sel:null, mode:"A", mapOn:true };
+
+/* ---------------- ilustraciones ---------------- */
+function scene(hue, w, h, variant){
+  var v = variant || 0;
+  var sky1 = "hsl("+(hue+18)+" 30% 78%)", sky2 = "hsl("+(hue-6)+" 24% 62%)";
+  var far  = "hsl("+(hue+8)+" 22% 46%)", mid = "hsl("+(hue+2)+" 26% 34%)", near = "hsl("+hue+" 30% 23%)";
+  var uid = "g"+hue+"-"+v+"-"+Math.floor(w);
+  var s = '<svg viewBox="0 0 100 '+h+'" preserveAspectRatio="none" role="img" aria-label="Ilustración del entorno">';
+  s += '<defs><linearGradient id="'+uid+'" x1="0" y1="0" x2="0" y2="1">';
+  s += '<stop offset="0" stop-color="'+sky1+'"/><stop offset="1" stop-color="'+sky2+'"/></linearGradient></defs>';
+  s += '<rect width="100" height="'+h+'" fill="url(#'+uid+')"/>';
+  var sun = 'hsl(' + (hue+40) + ' 60% 88%)';
+  s += '<circle cx="'+(18+v*24)+'" cy="'+(h*0.26)+'" r="'+(4.5-v*0.6)+'" fill="'+sun+'" opacity=".85"/>';
+  var b1 = h*0.62, b2 = h*0.74, b3 = h*0.86;
+  s += '<path d="M0 '+b1+' L14 '+(b1-h*0.18)+' L28 '+(b1-h*0.05)+' L44 '+(b1-h*0.24)+' L60 '+(b1-h*0.02)+' L76 '+(b1-h*0.2)+' L100 '+(b1-h*0.06)+' L100 '+h+' L0 '+h+' Z" fill="'+far+'"/>';
+  s += '<path d="M0 '+b2+' L20 '+(b2-h*0.12)+' L38 '+(b2-h*0.02)+' L56 '+(b2-h*0.16)+' L78 '+(b2-h*0.03)+' L100 '+(b2-h*0.11)+' L100 '+h+' L0 '+h+' Z" fill="'+mid+'"/>';
+  s += '<path d="M0 '+b3+' L100 '+(b3-h*0.04)+' L100 '+h+' L0 '+h+' Z" fill="'+near+'"/>';
+  for (var i=0;i<9;i++){
+    var tx = 5 + i*11 + (v*3), ty = b3 - h*0.02 - (i%3)*h*0.015, th = h*0.1 + (i%4)*h*0.02;
+    s += '<path d="M'+tx+' '+ty+' l'+(-th*0.28)+' '+th+' l'+(th*0.56)+' 0 Z" fill="hsl('+(hue-4)+' 34% 17%)"/>';
+  }
+  s += '</svg>';
+  return s;
+}
+
+/* ---------------- mapa esquemático ---------------- */
+function drawMap(list){
+  var H = 74;
+  var s = '<svg viewBox="0 0 100 '+H+'" role="img" aria-label="Mapa esquemático de la zona">';
+  s += '<rect width="100" height="'+H+'" fill="var(--sunk)"/>';
+  s += '<path d="M0 0 L7 0 C9 12 6 22 8 32 C10 44 6 56 9 '+H+' L0 '+H+' Z" fill="var(--water)"/>';
+  s += '<text x="2.5" y="60" font-size="2.6" fill="var(--ink-3)" font-family="IBM Plex Mono" transform="rotate(-90 2.5 60)">PACÍFICO</text>';
+  // cordillera
+  for (var i=0;i<7;i++){
+    var mx = 66 + i*5.5, my = 16 + (i%3)*13;
+    s += '<path d="M'+mx+' '+my+' l-5 9 l10 0 Z" fill="var(--line-2)" opacity=".85"/>';
+  }
+  s += '<text x="84" y="66" font-size="2.8" fill="var(--ink-3)" font-family="IBM Plex Mono" text-anchor="middle">CORDILLERA</text>';
+  // río Maipo
+  s += '<path d="M95 44 C82 40 70 34 58 33 C46 32 34 30 22 29 C16 28.5 12 28 9 28" fill="none" stroke="var(--water)" stroke-width="1.4" stroke-linecap="round"/>';
+  // ruta 78 / G-25
+  s += '<path d="M13 26 L44 27 L62 30" fill="none" stroke="var(--line-2)" stroke-width=".7" stroke-dasharray="2 1.6"/>';
+  s += '<path d="M46 27 L70 31 L90 42" fill="none" stroke="var(--line-2)" stroke-width=".7" stroke-dasharray="2 1.6"/>';
+  // Santiago
+  s += '<circle cx="46" cy="27" r="2.6" fill="none" stroke="var(--ink-3)" stroke-width=".6"/>';
+  s += '<circle cx="46" cy="27" r=".9" fill="var(--ink-3)"/>';
+  s += '<text x="46" y="22.5" font-size="3" fill="var(--ink-2)" font-family="Bricolage Grotesque" font-weight="600" text-anchor="middle">Santiago</text>';
+  s += '<text x="14" y="9" font-size="2.7" fill="var(--ink-3)" font-family="IBM Plex Mono" letter-spacing=".2">LITORAL CENTRAL</text>';
+  s += '<text x="66" y="9" font-size="2.7" fill="var(--ink-3)" font-family="IBM Plex Mono" letter-spacing=".2">CAJÓN DEL MAIPO</text>';
+
+  list.forEach(function(c){
+    var on = state.sel === c.id;
+    var r = on ? 3.4 : 2.4;
+    s += '<g class="pin" data-pin="'+c.id+'" role="button" tabindex="0" aria-label="'+c.nom+'">';
+    s += '<circle cx="'+c.x+'" cy="'+c.y+'" r="'+(r+2.2)+'" fill="var(--surface)" opacity=".9"/>';
+    s += '<circle cx="'+c.x+'" cy="'+c.y+'" r="'+r+'" fill="'+(on?"var(--pine)":"var(--ink-2)")+'"/>';
+    if (on) s += '<text x="'+c.x+'" y="'+(c.y-5.2)+'" font-size="2.9" fill="var(--ink)" font-family="Bricolage Grotesque" font-weight="700" text-anchor="middle">'+c.nom.replace(/^(Camping|Domos|Refugio|Bosque de|Termas de la) /,"")+'</text>';
+    s += '</g>';
+  });
+  s += '</svg>';
+  $("mapSvg").innerHTML = s;
+  Array.prototype.forEach.call($("mapSvg").querySelectorAll("[data-pin]"), function(g){
+    function pick(){ state.sel = g.getAttribute("data-pin"); renderResultados(); }
+    g.addEventListener("click", pick);
+    g.addEventListener("keydown", function(e){ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); pick(); }});
+  });
+}
+
+/* ---------------- precios ---------------- */
+function tempActual(){ return TEMPS[1]; }
+function precioNoche(c){ return c.base * tempActual().m; }
+function totalReserva(c, noches, pax){
+  var extra = Math.max(0, pax - PAX_INCL) * PERSONA_EXTRA * noches;
+  return { aloj: precioNoche(c) * noches, extra: extra, total: precioNoche(c)*noches + extra };
+}
+
+/* ---------------- resultados ---------------- */
+function filtrar(){
+  return CAMPINGS.filter(function(c){
+    if (state.zona && c.zona !== state.zona) return false;
+    return state.filtros.every(function(f){ return c.am.indexOf(f) !== -1; });
+  });
+}
+
+function renderChips(){
+  var box = $("chips"); box.innerHTML = "";
+  FILTROS.forEach(function(k){
+    var b = document.createElement("button");
+    b.className = "chip"; b.type = "button";
+    b.textContent = AM[k];
+    b.setAttribute("aria-pressed", String(state.filtros.indexOf(k) !== -1));
+    b.addEventListener("click", function(){
+      var i = state.filtros.indexOf(k);
+      if (i === -1) state.filtros.push(k); else state.filtros.splice(i,1);
+      renderChips(); renderResultados();
+    });
+    box.appendChild(b);
+  });
+  if (state.filtros.length){
+    var c = document.createElement("button");
+    c.className = "chipclear"; c.type = "button"; c.textContent = "Limpiar filtros";
+    c.addEventListener("click", function(){ state.filtros = []; renderChips(); renderResultados(); });
+    box.appendChild(c);
+  }
+}
+
+function renderResultados(){
+  var list = filtrar();
+  $("resCount").textContent = list.length === 1 ? "1 lugar con cupo" : list.length + " lugares con cupo";
+  $("resTemp").textContent = "temporada media · " + state.noches + " noches · " + state.pax + " personas";
+  var box = $("cards"); box.innerHTML = "";
+
+  if (!list.length){
+    var e = document.createElement("div");
+    e.className = "empty";
+    e.innerHTML = "<strong>Ningún camping cumple todos esos filtros.</strong><br>En el producto real acá va la sugerencia: quitar el filtro menos común, o ampliar la zona.";
+    box.appendChild(e);
+  }
+
+  list.forEach(function(c){
+    var t = totalReserva(c, state.noches, state.pax);
+    var b = document.createElement("button");
+    b.className = "card" + (state.sel === c.id ? " sel" : "");
+    b.type = "button";
+    var ams = c.am.slice(0,4).map(function(k){ return "<span>"+AM[k]+"</span>"; }).join("");
+    var mas = c.am.length > 4 ? "<span>+"+(c.am.length-4)+"</span>" : "";
+    b.innerHTML =
+      '<div class="ph">'+scene(c.hue, 150, 62, c.id.charCodeAt(1)%3)+'</div>' +
+      '<div class="body">' +
+        '<div class="top"><h3>'+c.nom+'</h3><span class="rate">★ '+c.rate.toFixed(1)+' <span style="color:var(--ink-3)">('+c.revs+')</span></span></div>' +
+        '<div class="com">'+c.comuna+' · '+c.tipos.join(" · ")+' · '+c.sitios+' sitios</div>' +
+        '<div class="am">'+ams+mas+'</div>' +
+        '<div class="price"><b>'+clp(t.total)+'</b><span>total · '+state.noches+' noches, '+state.pax+' personas</span></div>' +
+      '</div>';
+    b.addEventListener("click", function(){ state.sel = c.id; abrirFicha(c); });
+    b.addEventListener("mouseenter", function(){
+      if (state.sel !== c.id){ state.sel = c.id; drawMap(list); marcarSel(); }
+    });
+    box.appendChild(b);
+  });
+  drawMap(list);
+}
+function marcarSel(){
+  Array.prototype.forEach.call($("cards").querySelectorAll(".card"), function(el, i){
+    var list = filtrar();
+    el.classList.toggle("sel", list[i] && list[i].id === state.sel);
+  });
+}
+
+/* ---------------- ficha ---------------- */
+var actual = null;
+function abrirFicha(c){
+  actual = c;
+  $("gal").innerHTML =
+    '<div class="g1">'+scene(c.hue, 500, 240, 0)+'</div>' +
+    '<div class="g2">'+scene(c.hue+16, 250, 117, 1)+'</div>' +
+    '<div class="g3">'+scene(c.hue-14, 250, 117, 2)+'</div>';
+  $("fName").textContent = c.nom;
+  $("fMeta").textContent = c.comuna + " · " + c.tipos.join(" · ") + " · " + c.sitios + " sitios";
+  $("fRate").innerHTML = "★ " + c.rate.toFixed(1) + ' <span style="color:var(--ink-3)">· '+c.revs+' reseñas verificadas</span>';
+  $("fDesc").textContent = c.desc;
+
+  var ams = $("fAms"); ams.innerHTML = "";
+  Object.keys(AM).forEach(function(k){
+    var has = c.am.indexOf(k) !== -1;
+    var d = document.createElement("div");
+    d.className = "amrow" + (has ? "" : " no");
+    d.innerHTML = '<span class="dot"></span>' + AM[k];
+    ams.appendChild(d);
+  });
+
+  var tb = $("fTar"); tb.innerHTML = "";
+  TEMPS.forEach(function(t){
+    var tr = document.createElement("tr");
+    tr.innerHTML = "<td>"+t.n+"</td><td style='color:var(--ink-3)'>"+t.f+"</td><td class='n'>"+clp(c.base*t.m)+"</td>";
+    tb.appendChild(tr);
+  });
+  $("fExtra").textContent = "Incluye " + PAX_INCL + " personas. Persona adicional " + clp(PERSONA_EXTRA) +
+    " por noche. Mínimo 2 noches en fines de semana largos.";
+
+  var sel = $("bbTipo"); sel.innerHTML = "";
+  c.tipos.forEach(function(t){ var o=document.createElement("option"); o.textContent=t; sel.appendChild(o); });
+  $("bbPax").value = String(state.pax);
+  $("bbRetract").innerHTML = "<strong>Sin derecho a retracto.</strong> El cargo de reserva no es reembolsable si cancelas dentro de las 72 horas previas a la llegada. Obligación del Reglamento de Comercio Electrónico: destacado junto al precio.";
+  renderBooking();
+  irA("v-ficha");
+  window.scrollTo(0,0);
+}
+
+function renderBooking(){
+  var c = actual; if (!c) return;
+  var pax = parseInt($("bbPax").value, 10);
+  var t = totalReserva(c, state.noches, pax);
+  $("bbPrice").textContent = clp(precioNoche(c));
+  $("bbUnit").textContent = "por sitio / noche · temporada media";
+  var L = $("bbLines"); L.innerHTML = "";
+  function line(k, v, cls){
+    var d = document.createElement("div");
+    d.className = "line" + (cls ? " "+cls : "");
+    d.innerHTML = '<span>'+k+'</span><span class="v">'+v+'</span>';
+    L.appendChild(d);
+  }
+  line(clp(precioNoche(c)) + " × " + state.noches + " noches", clp(t.aloj));
+  if (t.extra > 0) line((pax - PAX_INCL) + " personas adicionales × " + state.noches, clp(t.extra));
+  line("Precio total", clp(t.total), "tot");
+}
+
+/* ---------------- pago ---------------- */
+function calcModo(modo, total){
+  if (modo === "A"){
+    var cargo = total * TAKE;
+    return {
+      quien:"Reserva en " + actual.nom + " · 3 noches",
+      lines:[
+        ["Precio total de la estadía", clp(total)],
+        ["Cargo de reserva (12%) — se descuenta del total", clp(cargo)],
+        ["Saldo que pagas al llegar, directo al camping", clp(total - cargo)]
+      ],
+      k1:"Pagas hoy", v1:clp(cargo),
+      k2:"Pagas en el camping", v2:clp(total - cargo),
+      cta:"Pagar " + clp(cargo) + " y confirmar",
+      nota:"El huésped paga <b>"+clp(total)+"</b> en total: exactamente lo mismo que si llamara por WhatsApp. No hay nada que arbitrar. El anfitrión no gira nada ni espera ninguna liquidación.",
+      warn:false,
+      bruto:cargo, procesado:cargo, com:cargo
+    };
+  }
+  if (modo === "B"){
+    var com = total * TAKE;
+    return {
+      quien:"Reserva en " + actual.nom + " · 3 noches",
+      lines:[
+        ["Precio total de la estadía", clp(total)],
+        ["Lo cobramos completo nosotros", clp(total)],
+        ["Le liquidamos al camping a las 24h del check-in", clp(total - com)]
+      ],
+      k1:"Pagas hoy", v1:clp(total),
+      k2:"Pagas en el camping", v2:"$0",
+      cta:"Pagar " + clp(total) + " y confirmar",
+      nota:"Da pago protegido al viajero y control del dinero sobre el anfitrión. A cambio: procesamos el GMV completo, hay que construir liquidaciones y tesorería, y aparece la pregunta «¿cuándo me pagas?».",
+      warn:false,
+      bruto:com, procesado:total, com:com
+    };
+  }
+  var fee = total * FEE_V;
+  return {
+    quien:"Reserva en " + actual.nom + " · 3 noches",
+    lines:[
+      ["Precio total de la estadía", clp(total)],
+      ["Cargo por servicio (8%) — adicional", clp(fee)],
+      ["Abono que pagas hoy (40% + cargo)", clp(total*0.4 + fee)]
+    ],
+    k1:"Pagas hoy", v1:clp(total*0.4 + fee),
+    k2:"Total que te cuesta", v2:clp(total + fee),
+    cta:"Pagar " + clp(total*0.4 + fee) + " y confirmar",
+    nota:"El huésped paga <b>"+clp(fee)+" más</b> que llamando al camping por WhatsApp. Y el anfitrión, que paga 0%, no tiene ningún incentivo para rechazar esa llamada. <b>Acá se fuga la reserva.</b>",
+    warn:true,
+    bruto:fee, procesado:total*0.4 + fee, com:fee
+  };
+}
+
+function renderPago(){
+  if (!actual) return;
+  var pax = parseInt($("bbPax").value, 10);
+  var total = totalReserva(actual, state.noches, pax).total;
+  var m = calcModo(state.mode, total);
+
+  $("payWho").textContent = m.quien;
+  var L = $("payLines"); L.innerHTML = "";
+  m.lines.forEach(function(p, i){
+    var d = document.createElement("div");
+    d.className = "line" + (i === 0 ? "" : "");
+    d.innerHTML = '<span>'+p[0]+'</span><span class="v">'+p[1]+'</span>';
+    L.appendChild(d);
+  });
+  $("payK1").textContent = m.k1; $("payV1").textContent = m.v1;
+  $("payK2").textContent = m.k2; $("payV2").textContent = m.v2;
+  $("btnPagar").textContent = m.cta;
+  var note = $("payNote");
+  note.innerHTML = m.nota;
+  note.className = "paynote" + (m.warn ? " warn" : "");
+
+  var neto = m.bruto - m.procesado*PROC - m.procesado*CC - SOPORTE;
+  $("payMargin").className = "paynote";
+  $("payMargin").innerHTML = "<b>Lo que nos queda a nosotros:</b> ingreso bruto " + clp(m.bruto) +
+    " − procesamiento sobre " + clp(m.procesado) + " − contracargos − soporte = <b>" + clp(neto) +
+    "</b> netos, un " + (neto/total*100).toFixed(1).replace(".",",") + "% del valor de la reserva.";
+
+  Array.prototype.forEach.call(document.querySelectorAll(".mode"), function(b){
+    b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode));
+  });
+}
+
+/* ---------------- anfitrión ---------------- */
+var DIAS = 14, DIA0 = 8; // 8 al 21 de noviembre de 2026; el 8 cae domingo
+var LETRA = ["L","M","M","J","V","S","D"];
+function dow(d){ return (d + 6) % 7; }          // 0 = lunes ... 6 = domingo
+function esFinde(d){ var w = dow(d); return w === 5 || w === 6; }
+var TIPOS_H = ["Sitio de carpa","Sitio motorhome","Domo"];
+var reservas = [
+  {nom:"Familia Aravena", tipo:0, ini:0, len:3, src:"direct", monto:96000},
+  {nom:"Ignacio Pérez",   tipo:0, ini:5, len:2, src:"direct", monto:64000},
+  {nom:"Grupo trekking",  tipo:0, ini:9, len:2, src:"mkt",    monto:120000},
+  {nom:"P. Mardones",     tipo:1, ini:2, len:4, src:"direct", monto:140000},
+  {nom:"J. Villalobos",   tipo:1, ini:10,len:3, src:"mkt",    monto:105000},
+  {nom:"C. Bustos",       tipo:2, ini:1, len:2, src:"direct", monto:190000},
+  {nom:"Aniversario R.",  tipo:2, ini:7, len:3, src:"mkt",    monto:285000}
+];
+
+function renderHost(){
+  var cal = $("cal"); cal.innerHTML = "";
+  var head = document.createElement("div");
+  head.className = "calrow head";
+  head.innerHTML = '<div class="rl">Tipo de sitio</div>';
+  for (var d=0; d<DIAS; d++){
+    head.innerHTML += '<div class="d' + (esFinde(d) ? ' we' : '') + '">' +
+      '<em>' + LETRA[dow(d)] + '</em>' + (DIA0 + d) + '</div>';
+  }
+  cal.appendChild(head);
+
+  TIPOS_H.forEach(function(tn, ti){
+    var row = document.createElement("div");
+    row.className = "calrow";
+    var rl = document.createElement("div");
+    rl.className = "rl"; rl.textContent = tn;
+    row.appendChild(rl);
+    for (var d=0; d<DIAS; d++){
+      var cell = document.createElement("div");
+      cell.className = "cell" + (esFinde(d) ? " we" : "");
+      row.appendChild(cell);
+    }
+    cal.appendChild(row);
+
+    reservas.filter(function(r){ return r.tipo === ti; }).forEach(function(r){
+      var cells = row.querySelectorAll(".cell");
+      var start = cells[r.ini];
+      if (!start) return;
+      var bar = document.createElement("div");
+      bar.className = "bar " + (r.src === "mkt" ? "mkt" : "direct") + (r.fresh ? " fresh" : "");
+      bar.style.width = "calc(" + (r.len * 100) + "% - 4px)";
+      bar.textContent = r.nom;
+      bar.title = r.nom + " · " + r.len + " noches · " + (r.src === "mkt" ? "vino del marketplace" : "reserva tuya");
+      start.appendChild(bar);
+      r.fresh = false;
+    });
+  });
+
+  var tot = reservas.reduce(function(a,r){ return a + r.monto; }, 0);
+  var com = reservas.reduce(function(a,r){ return a + (r.src === "mkt" ? r.monto * TAKE : 0); }, 0);
+  var noches = reservas.reduce(function(a,r){ return a + r.len; }, 0);
+  $("hN").textContent = String(reservas.length);
+  $("hGmv").textContent = clp(tot);
+  $("hCom").textContent = clp(com);
+  $("hOcc").textContent = Math.round(noches / (DIAS * 3) * 100) + "%";
+
+  var bl = $("blist"); bl.innerHTML = "";
+  reservas.slice().reverse().forEach(function(r){
+    var row = document.createElement("div");
+    row.className = "brow";
+    var mkt = r.src === "mkt";
+    row.innerHTML =
+      '<div><div class="who">'+r.nom+'</div><div class="when">'+(DIA0+r.ini)+' al '+(DIA0+r.ini+r.len)+' de nov · '+TIPOS_H[r.tipo]+'</div></div>' +
+      '<span class="badge '+(mkt?"mkt":"direct")+'">'+(mkt?"te la mandamos":"tuya · whatsapp")+'</span>' +
+      '<div class="amt">'+clp(r.monto)+'<small>'+(mkt ? "comisión "+clp(r.monto*TAKE) : "comisión $0")+'</small></div>';
+    bl.appendChild(row);
+  });
+}
+
+/* ---------------- navegación ---------------- */
+function irA(id){
+  Array.prototype.forEach.call(document.querySelectorAll(".view"), function(v){
+    v.classList.toggle("on", v.id === id);
+  });
+  var host = id === "v-host";
+  $("sideTraveler").setAttribute("aria-pressed", String(!host));
+  $("sideHost").setAttribute("aria-pressed", String(host));
+}
+
+/* ---------------- eventos ---------------- */
+$("fZona").addEventListener("change", function(){ state.zona = this.value; state.sel = null; renderResultados(); });
+$("fNoches").addEventListener("change", function(){ state.noches = parseInt(this.value,10); renderResultados(); });
+$("fPax").addEventListener("change", function(){ state.pax = parseInt(this.value,10); renderResultados(); });
+$("btnBuscar").addEventListener("click", function(){ renderResultados(); });
+$("btnMap").addEventListener("click", function(){
+  state.mapOn = !state.mapOn;
+  $("mapcol").style.display = state.mapOn ? "" : "none";
+  this.textContent = state.mapOn ? "Ocultar mapa" : "Ver mapa";
+});
+$("bbPax").addEventListener("change", renderBooking);
+$("bbTipo").addEventListener("change", renderBooking);
+$("btnBack").addEventListener("click", function(){ irA("v-buscar"); window.scrollTo(0,0); });
+$("btnBack2").addEventListener("click", function(){ irA("v-ficha"); window.scrollTo(0,0); });
+$("btnReservar").addEventListener("click", function(){ renderPago(); irA("v-pago"); window.scrollTo(0,0); });
+Array.prototype.forEach.call(document.querySelectorAll(".mode"), function(b){
+  b.addEventListener("click", function(){ state.mode = b.dataset.mode; renderPago(); });
+});
+$("btnPagar").addEventListener("click", function(){
+  var pax = parseInt($("bbPax").value, 10);
+  var total = totalReserva(actual, state.noches, pax).total;
+  var m = calcModo(state.mode, total);
+  $("doneTxt").innerHTML = "Le avisamos a <strong>"+actual.nom+"</strong> por WhatsApp. Pagaste <strong>"+m.v1+"</strong>" +
+    (state.mode === "A" ? " y el saldo de <strong>"+m.v2+"</strong> lo pagas al llegar." : ".");
+  $("doneCom").textContent = clp(m.com);
+  irA("v-listo"); window.scrollTo(0,0);
+});
+$("btnVerHost").addEventListener("click", function(){
+  var pax = parseInt($("bbPax").value, 10);
+  var total = totalReserva(actual, state.noches, pax).total;
+  reservas.push({nom:"Tu reserva", tipo:0, ini:11, len:state.noches, src:"mkt", monto:total, fresh:true});
+  renderHost(); irA("v-host"); window.scrollTo(0,0);
+});
+$("sideTraveler").addEventListener("click", function(){ irA("v-buscar"); window.scrollTo(0,0); });
+$("sideHost").addEventListener("click", function(){ renderHost(); irA("v-host"); window.scrollTo(0,0); });
+
+/* diálogo de alta manual */
+var dlg = $("dlg");
+$("btnAdd").addEventListener("click", function(){
+  var f = $("inFrom"); f.innerHTML = "";
+  for (var d=0; d<DIAS; d++){
+    var o = document.createElement("option");
+    o.value = String(d); o.textContent = (DIA0+d) + " de nov";
+    if (d === 3) o.selected = true;
+    f.appendChild(o);
+  }
+  var t = $("inTipo"); t.innerHTML = "";
+  TIPOS_H.forEach(function(tn, i){ var o=document.createElement("option"); o.value=String(i); o.textContent=tn; t.appendChild(o); });
+  dlg.showModal();
+});
+$("dlgCancel").addEventListener("click", function(){ dlg.close(); });
+$("dlgForm").addEventListener("submit", function(){
+  var ini = parseInt($("inFrom").value,10), len = parseInt($("inNights").value,10);
+  var tipo = parseInt($("inTipo").value,10), pax = parseInt($("inPax").value,10);
+  var base = [24000, 35000, 95000][tipo];
+  var monto = base*len + Math.max(0,pax-PAX_INCL)*PERSONA_EXTRA*len;
+  reservas.push({nom:$("inName").value || "Sin nombre", tipo:tipo, ini:Math.min(ini, DIAS-len),
+                 len:len, src:"direct", monto:monto, fresh:true});
+  renderHost();
+});
+
+/* ---------------- arranque ---------------- */
+renderChips();
+renderResultados();
+renderHost();
+state.sel = "c7";
+renderResultados();
+})();
+</script>
